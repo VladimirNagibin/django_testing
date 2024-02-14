@@ -1,31 +1,30 @@
 import pytest
 
 from django.conf import settings
-from django.urls import reverse
 
 from news.forms import CommentForm
 
 
-@pytest.mark.usefixtures('all_news')
+@pytest.mark.usefixtures('many_news')
 @pytest.mark.django_db
-def test_news_count(client):
-    response = client.get(reverse('news:home'))
+def test_news_count(client, url_home):
+    response = client.get(url_home)
     object_list = response.context['object_list']
     news_count = object_list.count()
     assert news_count == settings.NEWS_COUNT_ON_HOME_PAGE
 
 
-@pytest.mark.usefixtures('all_news')
+@pytest.mark.usefixtures('many_news')
 @pytest.mark.django_db
-def test_news_order(client):
-    response = client.get(reverse('news:home'))
+def test_news_order(client, url_home):
+    response = client.get(url_home)
     object_list = response.context['object_list']
     all_dates = [news.date for news in object_list]
     sorted_dates = sorted(all_dates, reverse=True)
     assert all_dates == sorted_dates
 
 
-@pytest.mark.usefixtures('all_comments')
+@pytest.mark.usefixtures('many_comments')
 @pytest.mark.django_db
 def test_comments_order(client, url_news_detail):
     response = client.get(url_news_detail)

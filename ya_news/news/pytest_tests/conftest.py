@@ -8,6 +8,12 @@ from django.utils import timezone
 
 from news.models import Comment, News
 
+COMMENTS_COUNT = 10
+NEWS_COUTN_ADD = 1
+TEXT = 'Text'
+NEW_TEXT = 'New text'
+TITLE = 'Title'
+
 
 @pytest.fixture
 def author(django_user_model):
@@ -36,8 +42,8 @@ def reader_client(reader):
 @pytest.fixture
 def news():
     news = News.objects.create(
-        title='Title',
-        text='Text',
+        title=TITLE,
+        text=TEXT,
     )
     return news
 
@@ -47,7 +53,7 @@ def comment(author, news):
     comment = Comment.objects.create(
         news=news,
         author=author,
-        text='Text',
+        text=TEXT,
     )
     return comment
 
@@ -55,13 +61,8 @@ def comment(author, news):
 @pytest.fixture
 def form_data():
     return {
-        'text': 'New text'
+        'text': NEW_TEXT
     }
-
-
-@pytest.fixture
-def args_for_news(news):
-    return (news.id,)
 
 
 @pytest.fixture
@@ -85,23 +86,33 @@ def url_delete_comment(comment):
 
 
 @pytest.fixture
-def all_news():
+def url_login():
+    return reverse('users:login')
+
+
+@pytest.fixture
+def url_home():
+    return reverse('news:home')
+
+
+@pytest.fixture
+def many_news():
     today = datetime.today()
     News.objects.bulk_create(
         News(
-            title=f'News {index}',
-            text='Text.',
+            title=f'{TITLE} {index}',
+            text=TEXT,
             date=today - timedelta(days=index))
-        for index in range(settings.NEWS_COUNT_ON_HOME_PAGE + 1)
+        for index in range(settings.NEWS_COUNT_ON_HOME_PAGE + NEWS_COUTN_ADD)
     )
 
 
 @pytest.fixture
-def all_comments(news, author):
+def many_comments(news, author):
     now = timezone.now()
-    for index in range(10):
+    for index in range(COMMENTS_COUNT):
         comment = Comment.objects.create(
-            news=news, author=author, text=f'Text {index}',
+            news=news, author=author, text=f'{TEXT} {index}',
         )
         comment.created = now + timedelta(days=index)
         comment.save()
