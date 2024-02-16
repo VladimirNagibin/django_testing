@@ -9,13 +9,24 @@ from notes.models import Note
 User = get_user_model()
 
 
-class TestRoutes(TestCase):
-    URLS_NOTES_WITH_SLUG = ('notes:edit', 'notes:detail', 'notes:delete')
-    URLS_NOTES = ('notes:list', 'notes:add', 'notes:success')
-    URLS_FOR_ANONYMOUS = ('notes:home',
-                          'users:login',
-                          'users:logout',
-                          'users:signup')
+class TestBase(TestCase):
+
+    SLUG = 'slug'
+    TITLE = 'Title'
+    TEXT = 'Text'
+    NEW_SLUG = 'new_slug'
+    NEW_TITLE = 'New title'
+    NEW_TEXT = 'New text'
+    URL_HOME = reverse('notes:home')
+    URL_LOGIN = reverse('users:login')
+    URL_LOGOUT = reverse('users:logout')
+    URL_SIGNUP = reverse('users:signup')
+    URL_NOTES_LIST = reverse('notes:list')
+    URL_NOTES_ADD = reverse('notes:add')
+    URL_NOTES_SUCCESS = reverse('notes:success')
+    URL_NOTES_EDIT = reverse('notes:edit', args=(SLUG,))
+    URL_NOTES_DETAIL = reverse('notes:detail', args=(SLUG,))
+    URL_NOTES_DELETE = reverse('notes:delete', args=(SLUG,))
 
     @classmethod
     def setUpTestData(cls):
@@ -26,45 +37,83 @@ class TestRoutes(TestCase):
         cls.reader_client = Client()
         cls.reader_client.force_login(cls.reader)
         cls.note = Note.objects.create(
-            title='Title',
-            text='Text',
+            title=cls.TITLE,
+            text=cls.TEXT,
             author=cls.author,
-            slug='slug'
+            slug=cls.SLUG
         )
+        cls.form_data = {'title': cls.NEW_TITLE,
+                         'text': cls.NEW_TEXT,
+                         'slug': cls.NEW_SLUG}
 
-    def test_pages_availability_for_anonymous_user(self):
-        for name in self.URLS_FOR_ANONYMOUS:
-            with self.subTest(name=name):
-                response = self.client.get(reverse(name))
-                self.assertEqual(response.status_code, HTTPStatus.OK)
+
+class TestRoutes(TestBase):
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.URLS_FOR_TESTS = (
+            cls.URL_HOME,
+            cls.URL_NOTES_LIST,
+            cls.URL_NOTES_ADD,
+            cls.URL_NOTES_SUCCESS,
+            cls.URL_NOTES_EDIT,
+            cls.URL_NOTES_DETAIL,
+            cls.URL_NOTES_DELETE,
+            cls.URL_LOGIN,
+            cls.URL_SIGNUP,
+            cls.URL_LOGOUT,
+        )
+        cls.URLS_UPDATE_NOTES = [
+            cls.URL_NOTES_EDIT,
+            cls.URL_NOTES_DETAIL,
+            cls.URL_NOTES_DELETE,
+        ]
+        cls.URLS_FOR_ANONYMOUS = [
+            cls.URL_HOME,
+            cls.URL_LOGIN,
+            cls.URL_LOGOUT,
+            cls.URL_SIGNUP,
+        ]
 
     def test_pages_availability_for_auth_user(self):
-        for name in self.URLS_NOTES:
+        """Проверка доступности страниц для пользователя - автора заметки."""
+        for name in self.URLS_FOR_TESTS:
             with self.subTest(name=name):
-                response = self.reader_client.get(reverse(name))
+                response = self.author_client.get(name)
                 self.assertEqual(response.status_code, HTTPStatus.OK)
 
-    def test_pages_availability_for_different_users(self):
-        for user_client, exp_status in (
-            (self.reader_client, HTTPStatus.NOT_FOUND),
-            (self.author_client, HTTPStatus.OK)
-        ):
-            for name in self.URLS_NOTES_WITH_SLUG:
-                with self.subTest(name=name, user_client=user_client):
-                    response = user_client.get(reverse(name,
-                                                       args=(self.note.slug,)))
-                    self.assertEqual(response.status_code, exp_status)
-
-    def test_redirects(self):
-        urls = tuple(
-            zip(self.URLS_NOTES_WITH_SLUG,
-                ((self.note.slug,),) * len(self.URLS_NOTES_WITH_SLUG))
-        )
-        urls += tuple(zip(self.URLS_NOTES,
-                          (None,) * len(self.URLS_NOTES)))
-        login_url = reverse('users:login')
-        for name, args in urls:
+    def test_pages_availability_for_reader_user(self):
+        """Проверка для аутентифицированного пользователя - не автора заметки.
+        Доступность главной страницы, страницы со списком заметок,
+        страниц успешного добавления и добавления новой заметки, регистрации
+        пользователей, входа в учётную запись и выхода из неё.
+        При переходе на страницы отдельной заметки, удаления и редактирования
+        заметки другого автора возвращается ошибка 404.
+        """
+        for name in self.URLS_FOR_TESTS:
             with self.subTest(name=name):
-                url = reverse(name, args=args)
-                redirect_url = f'{login_url}?next={url}'
-                self.assertRedirects(self.client.get(url), redirect_url)
+                if name in self.URLS_UPDATE_NOTES:
+                    status = HTTPStatus.NOT_FOUND
+                else:
+                    status = HTTPStatus.OK
+                response = self.reader_client.get(name)
+                self.assertEqual(response.status_code, status)
+
+    def test_pages_availability_for_anonymous_user(self):
+        """Проверка для анонимного пользователя.
+        Доступность главной страницы, страницы регистрации пользователей,
+        входа в учётную запись и выхода из неё.
+        При переходе на страницу со списком заметок, страниц успешного
+        добавления и добавления новой заметки,страницу отдельной заметки,
+        удаления и редактирования заметки происходит перенаправление на
+        страницу логина.
+        """
+        for name in self.URLS_FOR_TESTS:
+            with self.subTest(name=name):
+                response = self.client.get(name)
+                if name in self.URLS_FOR_ANONYMOUS:
+                    self.assertEqual(response.status_code, HTTPStatus.OK)
+                else:
+                    self.assertRedirects(response,
+                                         f'{self.URL_LOGIN}?next={name}')
