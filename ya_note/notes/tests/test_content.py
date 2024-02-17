@@ -1,4 +1,4 @@
-from .test_routes import TestBase
+from .test_base import TestBase
 from notes.forms import NoteForm
 
 
@@ -29,10 +29,8 @@ class TestContent(TestBase):
         """Проверка что на страницы создания и редактирования заметки
         передаются формы.
         """
-        for name in (
-            self.URL_NOTES_ADD,
-            self.URL_NOTES_EDIT
-        ):
+        urls_notes_add_edit = (self.URL_NOTES_ADD, self.URL_NOTES_EDIT)
+        for name in urls_notes_add_edit:
             response = self.author_client.get(name)
             self.assertIn('form', response.context)
             self.assertIsInstance(response.context['form'], NoteForm)
