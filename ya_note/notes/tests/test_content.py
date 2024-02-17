@@ -31,6 +31,7 @@ class TestContent(TestBase):
         """
         urls_notes_add_edit = (self.URL_NOTES_ADD, self.URL_NOTES_EDIT)
         for name in urls_notes_add_edit:
-            response = self.author_client.get(name)
-            self.assertIn('form', response.context)
-            self.assertIsInstance(response.context['form'], NoteForm)
+            with self.subTest(name=name):
+                response = self.author_client.get(name)
+                self.assertIn('form', response.context)
+                self.assertIsInstance(response.context['form'], NoteForm)
