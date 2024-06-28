@@ -1,10 +1,13 @@
+import os
 from pathlib import Path
 
-from django.urls import reverse_lazy
+from dotenv import load_dotenv
+
+load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-7)dgs++2!#==aye4rd=5)c)bw0eokiyqx0hts6#t80!$c&$s+('
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-SECRET_KEY')
 
 DEBUG = True
 
