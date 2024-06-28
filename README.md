@@ -1,52 +1,52 @@
-# Django testing  
-## Если вы успели выполнить все домашние задания — ваш финальный проект готов.
-Перенесите тесты из ваших проектов в данный репозиторий (**django_testing**), который появился в вашем аккаунте.  
-В итоге должна получиться следующая структура репозитория:
+### Django testing  
+
+## Описание
+тесты для двух проектов - сайта с новостями и комментариями (тестировал на pytest) и сайта - записной книжки (тесты на unittest)
+
+## Используемые технологии:
+
+- django
+- pytest
+- unittest
+
+В проекте используется python 3.9
+
+## Как запустить проект:
+
+Клонировать репозиторий и перейти в него в командной строке:
+
 ```
-Dev
- └── django_testing
-     ├── ya_news
-     │   ├── news
-     │   │   ├── fixtures/
-     │   │   ├── migrations/
-     │   │   ├── pytest_tests/   <- Директория с вашими тестами pytest для проекта ya_news
-     │   │   ├── __init__.py
-     │   │   ├── admin.py
-     │   │   ├── apps.py
-     │   │   ├── forms.py
-     │   │   ├── models.py
-     │   │   ├── urls.py
-     │   │   └── views.py
-     │   ├── templates/
-     │   ├── yanews/
-     │   ├── manage.py
-     │   └── pytest.ini
-     ├── ya_note
-     │   ├── notes
-     │   │   ├── migrations/
-     │   │   ├── tests/          <- Директория с вашими тестами unittest для проекта ya_note
-     │   │   ├── __init__.py
-     │   │   ├── admin.py
-     │   │   ├── apps.py
-     │   │   ├── forms.py
-     │   │   ├── models.py
-     │   │   ├── urls.py
-     │   │   └── views.py
-     │   ├── templates/
-     │   ├── yanote/
-     │   ├── manage.py
-     │   └── pytest.ini
-     ├── .gitignore
-     ├── README.md
-     ├── requirements.txt
-     └── structure_test.py
+git clone https://github.com/VladimirNagibin/django_testing.git
 ```
 
-## После копирования тестов, написанных в ходе прохождения спринта, для проверки готовности проекта к сдаче необходимо выполнить 4 действия:
-1. Создать и активировать виртуальное окружение; установить зависимости из файла `requirements.txt`;
-2. Запустить скрипт для `run_tests.sh` из корневой директории проекта:
-```sh
-bash run_tests.sh
+```
+cd django_testing
 ```
 
-**Если все проверки успешно выполнились, проект можно отправлять на ревью.**
+Cоздать и активировать виртуальное окружение:
+
+```
+python3.9 -m venv venv
+```
+
+```
+source venv/bin/activate
+```
+
+Установить пакетный менеджер и зависимости из файла requirements.txt:
+
+```
+pip install --upgrade pip
+```
+
+```
+pip install -r requirements.txt
+```
+
+
+В корень проекта нужно поместить файл .env  со значением SECRET_KEY= секретный ключ Django
+____
+
+**Владимир Нагибин** 
+
+Github: [@VladimirNagibin](https://github.com/VladimirNagibin/)
