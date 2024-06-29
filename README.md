@@ -43,6 +43,31 @@ pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
+Перейти в папку ya_note и запустить unittest, указав уровень детализации:
+
+```
+cd ya_note
+```
+
+```
+python manage.py test -v 3
+```
+
+Перейти в папку ya_news и запустить pytest:
+
+```
+cd ../ya_news
+```
+
+```
+pytest
+```
+
+Есть возможность скриптом из корня проекта запустить оба теста:
+
+```
+bash run_tests.sh
+```
 
 В корень проекта нужно поместить файл .env  со значением SECRET_KEY= секретный ключ Django
 ____
